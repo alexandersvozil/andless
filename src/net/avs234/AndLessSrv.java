@@ -26,7 +26,6 @@ import android.os.SystemClock;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.KeyEvent;
 
 
 public class AndLessSrv extends Service {
@@ -195,6 +194,7 @@ public class AndLessSrv extends Service {
 			if(mplayer == null) return LIBLOSSLESS_ERR_NOCTX;
 			mplayer.setDataSource(file);
 			mplayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+				@Override
 				public boolean onError(MediaPlayer mp, int what, int extra)  {
 					synchronized(mplayer_lock) {
 						if(mplayer != null) mplayer.release(); 	mplayer = null;
@@ -208,6 +208,7 @@ public class AndLessSrv extends Service {
 				}
 			});
 			mplayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+				@Override
 				public void onCompletion(MediaPlayer mp) {
 					log_msg("mplayer playback completed");
 					synchronized(mplayer_lock) {
@@ -216,6 +217,7 @@ public class AndLessSrv extends Service {
 				}
 			});
 			mplayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+				@Override
 				public void onPrepared(MediaPlayer mp) {
 					isPrepared = true;
 					if(fck_start != 0) mplayer.seekTo(fck_start*1000);
@@ -321,6 +323,7 @@ public class AndLessSrv extends Service {
 		// Used for cue files to update current track number and name.
 		private class CueUpdater {
 			private class CUETimerTask extends TimerTask {
+				@Override
 				public void run() {
 					cur_pos++; cur_start = 0;
 					if(cur_pos < names.length && names[cur_pos] != null) {
@@ -414,6 +417,7 @@ public class AndLessSrv extends Service {
 						
 		private class PlayThread extends Thread {
 			private int tid = -1;
+			@Override
 			public void run() {
 				tid = Process.myTid();
 				running = true;
@@ -647,38 +651,67 @@ public class AndLessSrv extends Service {
 	//// The interface we expose to clients.  It's returned to them when the connection is established. 
 
 	private static final IAndLessSrv.Stub binder = new IAndLessSrv.Stub() {
+		@Override
 		public boolean init_playlist(String path, int nitems) {
 			plist.stop(); //	plist = null; 		plist = new playlist(); 
 			return plist.init_playlist(path,nitems); 
 		}
+		@Override
 		public boolean  add_to_playlist(String src, String name, int start_time, int pos) { return plist.add_to_playlist(src,name,start_time,pos);}
+		@Override
 		public boolean	play (int n, int start) 	{ return plist.play(n,start); }
+		@Override
 		public boolean	seek_to (int p) 	{ return plist.seekTo(p); }
+		@Override
 		public boolean	play_next()  	{ return plist.play_next(); }
+		@Override
 		public boolean	play_prev()  	{ return plist.play_prev(); }
+		@Override
 		public boolean	pause() 		{ return plist.pause(); }
+		@Override
 		public boolean	resume() 		{ return plist.resume(); }
+		@Override
 		public boolean	inc_vol() 		{ return plist.inc_vol(); }
+		@Override
 		public boolean	dec_vol() 		{ return plist.dec_vol(); }
+		@Override
 		public boolean	shutdown() 		{ plist.stop();  if(ctx != 0) audioExit(ctx); ctx = 0; return true; }
+		@Override
 		public boolean	is_running()	{ return plist.running; }
+		@Override
 		public boolean  initialized() 	{ return ctx != 0; }	// why this function? 
+		@Override
 		public boolean	is_paused()		{ return plist.paused; }
+		@Override
 		public int		get_cur_mode()	{ return plist.cur_mode; }
+		@Override
 		public String	get_cur_dir()	{ return plist.dir; }
+		@Override
 		public int		get_cur_pos()	{ return plist.cur_pos; }
+		@Override
 		public int		get_cur_seconds()		{ return plist.getCurPosition(); }
+		@Override
 		public int		get_track_duration()		{ return plist.getDuration(); }
+		@Override
 		public int		get_cur_track_start() { return curTrackStart; }
+		@Override
 		public int		get_cur_track_len() { return curTrackLen; }
+		@Override
 		public String  	get_cur_track_source()	{ try { return plist.files[plist.cur_pos]; } catch(Exception e) {return null;} }
+		@Override
 		public String  	get_cur_track_name()	{ try { return plist.names[plist.cur_pos]; } catch(Exception e) {return null;} }
+		@Override
 		public void		set_driver_mode(int m) 	{ plist.driver_mode = m; }
+		@Override
 		public void		set_headset_mode(int m)	{ headset_mode = m; }
+		@Override
 		public void 	registerCallback(IAndLessSrvCallback cb)   { if(cb != null) cBacks.register(cb); };
+		@Override
 		public void 	unregisterCallback(IAndLessSrvCallback cb) { if(cb != null) cBacks.unregister(cb); };
-	    public int []	get_cue_from_flac(String file) {return  extractFlacCUE(file); };
-	    public void		launch(String path) { if(launcher != null) launcher.launch(path);  };
+	    @Override
+		public int []	get_cue_from_flac(String file) {return  extractFlacCUE(file); };
+	    @Override
+		public void		launch(String path) { if(launcher != null) launcher.launch(path);  };
 	};
 	
 	private class Launcher {
@@ -712,7 +745,7 @@ public class AndLessSrv extends Service {
 	        Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
 	        //if(!libInit(Build.VERSION.SDK_INT)) {
 	        if(!libInit(Integer.parseInt(Build.VERSION.SDK))) {	        	
-	        	log_err("cannot initialize atrack library");
+	        	log_err("cannot initialize atrack library" +Build.VERSION.SDK );
 	        	stopSelf();
 	        }
 	}

@@ -18,7 +18,7 @@
 
 #include <linux/types.h>
 #include <linux/ioctl.h>
-#include <asm/sizes.h>
+#include "sizes.h"
 
 /* PCM Audio */
 

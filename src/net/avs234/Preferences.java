@@ -12,7 +12,8 @@ import android.preference.Preference.OnPreferenceClickListener;
 
 public class Preferences extends PreferenceActivity {
 
-    public void onCreate(Bundle savedInstanceState) {
+    @Override
+	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setPreferenceScreen(createPreferenceHierarchy());
     }
@@ -70,6 +71,7 @@ public class Preferences extends PreferenceActivity {
         PreferenceScreen andlessPrefAbout = getPreferenceManager().createPreferenceScreen(this);
         andlessPrefAbout.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			
+			@Override
 			public boolean onPreferenceClick(Preference p) {
 				showDialog(0);
 				return false;

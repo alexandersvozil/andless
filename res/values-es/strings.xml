@@ -69,6 +69,7 @@
 <string name="strSrvInitFail">El servidor falló la inicialización ¡Cerrando!</string>
 <string name="strMplayerError">Error del reproductor multimedial </string>
 <string name="strDriverMode">Acceso directo a dispositivos tangibles (hardware)</string>
+<string name="strNightMode">Night mode</string>
 <string name="strSaveBooks">Grabar señaldores automáticamente</string>
 <string name="strAbout">Reproductor de archivos de audio lossless andLess para Android finalizado el 24 de junio de 2011</string>
 <string name="strAbout1">Acerca de</string>

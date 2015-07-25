@@ -76,6 +76,7 @@
 <string name="strHideExt">隐藏文件扩展名</string>
 <string name="strErrPrefs">无法保存设置参数！</string>
 <string name="strErrSrvIf">服务器返回空绑定接口</string>
+<string name="strNightMode">Night mode</string>
 <string name="strErrSrvZero">Binder is null on button press</string>
 <string name="strBadBook">无效的标签文件</string>
 <string name="strCueTrack">跟踪</string>

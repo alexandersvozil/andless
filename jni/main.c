@@ -225,7 +225,12 @@ static jboolean libinit(JNIEnv *env, jobject obj, jint sdk) {
 */
      __android_log_print(ANDROID_LOG_INFO,"liblossless","libinit: sdk=%d",sdk);
     if(!libhandle) {
-	if(sdk >= 17) libhandle = dlopen("/data/data/net.avs234/lib/libatrack17.so", RTLD_NOW);
+	if(sdk >= 17) {
+		libhandle = dlopen("/data/data/net.avs234/lib/liblossless.so", RTLD_NOW);
+		if(!libhandle){
+			__android_log_print(ANDROID_LOG_INFO,"liblossless","ERROR: sdk=%s",dlerror());
+		}
+	}
 	else if(sdk == 16) libhandle = dlopen("/data/data/net.avs234/lib/libatrack16.so", RTLD_NOW);
         else if(sdk > 8) libhandle = dlopen("/data/data/net.avs234/lib/libatrack9.so", RTLD_NOW);
         else libhandle = dlopen("/data/data/net.avs234/lib/libatrack8.so", RTLD_NOW);
@@ -241,7 +246,7 @@ static jboolean libinit(JNIEnv *env, jobject obj, jint sdk) {
                 libmediacb_wait_done = (typeof(libmediacb_wait_done)) dlsym(libhandle,"libmediacb_wait_done");
 	}
     }
-    __android_log_print(ANDROID_LOG_INFO,"liblossless","libinit: handle=%p",libhandle);
+    __android_log_print(ANDROID_LOG_INFO,"liblossless","libinit: handle=%p, fucking file:data/data/net.avs234/libs/armeabi/libatrack17.so",libhandle);
     return libhandle != 0;
 }
 

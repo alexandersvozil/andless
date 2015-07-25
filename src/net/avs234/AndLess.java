@@ -9,20 +9,16 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -33,6 +29,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -41,7 +38,6 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,7 +52,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -116,7 +111,8 @@ public class AndLess extends Activity implements Comparator<File> {
         
     	// Callback for server to report track/state changes.  Invokes the above handler to set window title. 
     	private IAndLessSrvCallback cBack = new IAndLessSrvCallback.Stub() { 
-    		public void playItemChanged(boolean error, String name) {
+    		@Override
+			public void playItemChanged(boolean error, String name) {
     			log_msg(String.format("track name changed to %s", name));
     			Message msg = new Message();
     			Bundle data = new Bundle();
@@ -125,7 +121,8 @@ public class AndLess extends Activity implements Comparator<File> {
     			msg.setData(data);
     			hdl.sendMessage(msg);
     		}
-    		public void errorReported(String name) {
+    		@Override
+			public void errorReported(String name) {
     			log_msg(String.format("error \"%s\" received", name));
     			Message msg = new Message();
     			Bundle data = new Bundle();
@@ -133,13 +130,15 @@ public class AndLess extends Activity implements Comparator<File> {
     			msg.setData(data);
     			hdl.sendMessage(msg);
     		}
-    		public void playItemPaused(boolean paused) {
+    		@Override
+			public void playItemPaused(boolean paused) {
     			pauseResumeHandler.sendEmptyMessage(paused ? 1 : 0);
     		}
     	};
     	
     	IBinder.DeathRecipient bdeath = new IBinder.DeathRecipient() {
-    		public void binderDied() {
+    		@Override
+			public void binderDied() {
 				log_err("Binder died, trying to reconnect");
 				conn = new_connection();
 				Intent intie = new Intent();
@@ -157,7 +156,8 @@ public class AndLess extends Activity implements Comparator<File> {
     	
     	ServiceConnection new_connection() {
     	 return new ServiceConnection() {
-    		public void onServiceConnected(ComponentName cn,IBinder obj) {
+    		@Override
+			public void onServiceConnected(ComponentName cn,IBinder obj) {
     			srv = IAndLessSrv.Stub.asInterface(obj);
     			
     			if(srv == null) {
@@ -240,7 +240,8 @@ public class AndLess extends Activity implements Comparator<File> {
     			} catch(RemoteException e) {log_msg("remote exception in onServiceConnected: " + e.toString()); }
     		//	Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
     		}
-    		public void onServiceDisconnected(ComponentName cn) { 
+    		@Override
+			public void onServiceDisconnected(ComponentName cn) { 
     			srv = null;
     		}
     	   }; 
@@ -252,7 +253,8 @@ public class AndLess extends Activity implements Comparator<File> {
     		public static final int cmd_pause = 1, cmd_prev = 2, cmd_next = 3, cmd_vol_up = 4, cmd_vol_down = 5;
     		private final int dont_change_btn = 0, change_to_pause_btn = 1, change_to_play_btn = 2;
     		private String now_playing = null;
-    		protected Integer doInBackground(Integer... func) {
+    		@Override
+			protected Integer doInBackground(Integer... func) {
     			try {
     				switch(func[0]) {
     					case cmd_pause:
@@ -289,7 +291,8 @@ public class AndLess extends Activity implements Comparator<File> {
 			}
     			return dont_change_btn;
     		}
-    		protected void onPostExecute(Integer result) {
+    		@Override
+			protected void onPostExecute(Integer result) {
     			switch(result) {
     				case change_to_pause_btn:
     					if(pause_on_start) selItem.onItemClick(null, null, 0, 0); // dirty hack
@@ -321,7 +324,8 @@ public class AndLess extends Activity implements Comparator<File> {
     	
     	View.OnClickListener onButtPause = new OnClickListener() {
     		private String now_playing = null;
-    		public void onClick(View v) { 
+    		@Override
+			public void onClick(View v) { 
     			if(samsung) {
         			try {
   						if(srv == null) errExit(R.string.strErrSrvZero);
@@ -362,7 +366,8 @@ public class AndLess extends Activity implements Comparator<File> {
     	}
     	
     	View.OnClickListener onButtPrev= new OnClickListener() {
-    		public void onClick(View v) {
+    		@Override
+			public void onClick(View v) {
     			if(samsung) {
         			try {
         				if(srv == null) errExit(R.string.strErrSrvZero);
@@ -375,7 +380,8 @@ public class AndLess extends Activity implements Comparator<File> {
     		}	
     	};
     	View.OnClickListener onButtNext = new OnClickListener() {
-        	public void onClick(View v) { 
+        	@Override
+			public void onClick(View v) { 
         		if(samsung) {
         			try {
         				if(srv == null) errExit(R.string.strErrSrvZero);
@@ -388,7 +394,8 @@ public class AndLess extends Activity implements Comparator<File> {
         	}	
         };
         View.OnClickListener onButtVPlus = new OnClickListener() {
-        	public void onClick(View v) {
+        	@Override
+			public void onClick(View v) {
         		v.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),  R.anim.blink));
         		if(samsung) {
         			try {
@@ -402,7 +409,8 @@ public class AndLess extends Activity implements Comparator<File> {
         	}	
         };
         View.OnClickListener onButtVMinus = new OnClickListener() {
-        	public void onClick(View v) {
+        	@Override
+			public void onClick(View v) {
         		v.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),  R.anim.blink));
         		if(samsung) {
         			try {
@@ -415,7 +423,8 @@ public class AndLess extends Activity implements Comparator<File> {
         	}	
         };
         View.OnClickListener onButtonVolume = new OnClickListener() {
-        	public void onClick(View v) { 
+        	@Override
+			public void onClick(View v) { 
         		showDialog(VOLUME_DLG); 
         	}	
         };
@@ -444,7 +453,8 @@ public class AndLess extends Activity implements Comparator<File> {
     	}
   	
     	View.OnClickListener onButtUp = new OnClickListener() {
-    		public void onClick(View v) {
+    		@Override
+			public void onClick(View v) {
     			if(cur_path == null) return;
     			v.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),  R.anim.blink));
     			File path = cur_path.getParentFile();
@@ -464,16 +474,19 @@ public class AndLess extends Activity implements Comparator<File> {
     	
     	OnSeekBarChangeListener onSeekBar = new OnSeekBarChangeListener() {
 
+			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				String sTime = (progress < 3600) ? String.format("%d:%02d", progress/60, progress % 60) 
 						:	String.format("%d:%02d:%02d", progress/3600, (progress % 3600)/60, progress % 60);
    				nowTime.setText(sTime);
 			}
 
+			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				
 			}
 
+			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				try {
 					if(srv.get_cur_mode() == 0) {
@@ -568,7 +581,8 @@ public class AndLess extends Activity implements Comparator<File> {
     	////////////  Change to the selected directory/cue/playlist, or play starting from the selected track 
     	AdapterView.OnItemClickListener selItem = new OnItemClickListener() {
 
-    		public void onItemClick(AdapterView<?> a, View v, int i,long k) {
+    		@Override
+			public void onItemClick(AdapterView<?> a, View v, int i,long k) {
 
     			pause_on_start = false;
     			if(i==0 && a != null) {
@@ -746,6 +760,7 @@ public class AndLess extends Activity implements Comparator<File> {
 
     	private int cur_longpressed = 0;
     	AdapterView.OnItemLongClickListener pressItem = new OnItemLongClickListener() {
+			@Override
 			public boolean onItemLongClick(AdapterView<?> a, View v, int i, long k) {
 				if(i==0) {
 					onButtUp();
@@ -805,6 +820,7 @@ public class AndLess extends Activity implements Comparator<File> {
 			private final int update_period = 500;
 			
 			private class UpdaterTask extends TimerTask {
+				@Override
 				public void run() {
 					if(track_name == null) {
 						shutdown();
@@ -812,6 +828,7 @@ public class AndLess extends Activity implements Comparator<File> {
 					}
 					if(init_completed) {
 						progressUpdate.post(new Runnable() {
+							@Override
 							public void run() {
 								if(srv == null) return;
 								if(!pBar.isPressed()) { 
@@ -848,6 +865,7 @@ public class AndLess extends Activity implements Comparator<File> {
 						return;
 					}
 					progressUpdate.post(new Runnable() {	// initialize
+						@Override
 						public void run() {
 							if(srv == null) return;
 							if(!pBar.isPressed()) {
@@ -953,7 +971,8 @@ public class AndLess extends Activity implements Comparator<File> {
     	///////////////////////// Entry point //////////////////////////
     	////////////////////////////////////////////////////////////////
       
-        protected void onResume() {
+        @Override
+		protected void onResume() {
         	super.onResume();
         	
         	// getting settings
@@ -1035,7 +1054,7 @@ public class AndLess extends Activity implements Comparator<File> {
             
             if(!bindService(intie, conn,0)) log_err("cannot bind service");
             else log_msg("service bound");
-            if((new Build()).DEVICE.compareTo("GT-I5700") == 0 && (new Build.VERSION()).SDK.compareTo("7") == 0) samsung = true;
+            if(Build.DEVICE.compareTo("GT-I5700") == 0 && VERSION.SDK.compareTo("7") == 0) samsung = true;
             
     	}
 
@@ -1171,7 +1190,8 @@ public class AndLess extends Activity implements Comparator<File> {
     	private Dialog thisDialog;
     	private CheckBox chb, chbp;
     	
-    	protected void  onPrepareDialog  (int id, Dialog  dialog) {
+    	@Override
+		protected void  onPrepareDialog  (int id, Dialog  dialog) {
     		switch(id) {
     		   	case EDIT_PLAYLIST_DLG:
        				item_deleted = false;
@@ -1217,7 +1237,8 @@ public class AndLess extends Activity implements Comparator<File> {
     		}
     	}
     	
-    	protected Dialog onCreateDialog(int id) {
+    	@Override
+		protected Dialog onCreateDialog(int id) {
 			Dialog dialog;
 			LayoutInflater factory = LayoutInflater.from(this);
 			switch(id) {
@@ -1228,7 +1249,8 @@ public class AndLess extends Activity implements Comparator<File> {
    				add_playlist_dlg.setView(newView);
    				add_playlist_dlg.setTitle(R.string.strAddPlist);
    				add_playlist_dlg.setPositiveButton(R.string.strAdd, new DialogInterface.OnClickListener() {
-   			        public void onClick(DialogInterface dialog, int whichButton) {
+   			        @Override
+					public void onClick(DialogInterface dialog, int whichButton) {
    			        	Log.i("andless", "-1");
    			      // save and reload playlist
    		    			String path = ((EditText) newView.findViewById(R.id.EditPlaylistPath)).getText().toString();
@@ -1294,7 +1316,8 @@ public class AndLess extends Activity implements Comparator<File> {
    			          }
    			        });
    				add_playlist_dlg.setNegativeButton(R.string.strCancel, new DialogInterface.OnClickListener() {
-   			        public void onClick(DialogInterface dialog, int whichButton) {
+   			        @Override
+					public void onClick(DialogInterface dialog, int whichButton) {
    			        	dismissDialog(ADD_PLAYLIST_DLG);
    		    			thisDialog = null;
    			        	}
@@ -1308,7 +1331,8 @@ public class AndLess extends Activity implements Comparator<File> {
 
    				// Move to bottom
    				((Button) dialog.findViewById(R.id.ButtonBottom)).setOnClickListener(new OnClickListener() {
-   		    		public void onClick(View v) {
+   		    		@Override
+					public void onClick(View v) {
    		    			if(item_deleted) return;
    		    			track_longpressed = files.size() - 1;
    		    			thisDialog.setTitle(curRowIs + " " + (track_longpressed + 1));
@@ -1317,7 +1341,8 @@ public class AndLess extends Activity implements Comparator<File> {
    				
    				// Move down
    				((Button) dialog.findViewById(R.id.ButtonDown)).setOnClickListener(new OnClickListener() {
-   		    		public void onClick(View v) {
+   		    		@Override
+					public void onClick(View v) {
    		    			if(item_deleted) return;
    		    			if(track_longpressed + 1 < files.size()) track_longpressed++;
    		    			thisDialog.setTitle(curRowIs + " " + (track_longpressed + 1));
@@ -1326,7 +1351,8 @@ public class AndLess extends Activity implements Comparator<File> {
 
    				// Move up
    				((Button) dialog.findViewById(R.id.ButtonUp)).setOnClickListener(new OnClickListener() {
-   		    		public void onClick(View v) {
+   		    		@Override
+					public void onClick(View v) {
    		    			if(item_deleted) return;
    		    			if(track_longpressed > 0) track_longpressed--;
    		    			thisDialog.setTitle(curRowIs + " " + (track_longpressed + 1));
@@ -1335,7 +1361,8 @@ public class AndLess extends Activity implements Comparator<File> {
 
    				// Move to top
    				((Button) dialog.findViewById(R.id.ButtonTop)).setOnClickListener(new OnClickListener() {
-   		    		public void onClick(View v) {
+   		    		@Override
+					public void onClick(View v) {
    		    			if(item_deleted) return;
    		    			track_longpressed = 0;
    		    			thisDialog.setTitle(curRowIs + " 1");
@@ -1344,7 +1371,8 @@ public class AndLess extends Activity implements Comparator<File> {
 
    				// Save
    				((Button) dialog.findViewById(R.id.ButtonSave)).setOnClickListener(new OnClickListener() {
-   		    		public void onClick(View v) {
+   		    		@Override
+					public void onClick(View v) {
    		    			// save and reload playlist
    		    			if(cur_longpressed == track_longpressed && !item_deleted) {
    		    				Toast.makeText(getApplicationContext(), R.string.strNoChg, Toast.LENGTH_SHORT).show();
@@ -1385,7 +1413,8 @@ public class AndLess extends Activity implements Comparator<File> {
    				
    				// Cancel
    				((Button) dialog.findViewById(R.id.ButtonCancel)).setOnClickListener(new OnClickListener() {
-   		    		public void onClick(View v) {
+   		    		@Override
+					public void onClick(View v) {
    		    			dismissDialog(EDIT_PLAYLIST_DLG);
    		    			thisDialog = null;
    		    		}
@@ -1393,7 +1422,8 @@ public class AndLess extends Activity implements Comparator<File> {
    				
    				// Delete
    				((Button) dialog.findViewById(R.id.ButtonDelete)).setOnClickListener(new OnClickListener() {
-   		    		public void onClick(View v) {
+   		    		@Override
+					public void onClick(View v) {
    		    			item_deleted = true;
    		    			thisDialog.setTitle(itemDeleted);
    		    		}
@@ -1469,33 +1499,28 @@ public class AndLess extends Activity implements Comparator<File> {
     	
     	@Override
     	public boolean onOptionsItemSelected(MenuItem item) {
-    		switch (item.getItemId()) {
-    	 	case R.id.Setup:
-    	 		//showDialog(SETTINGS_DLG);
+    		int itemId = item.getItemId();
+			if (itemId == R.id.Setup) {
+				//showDialog(SETTINGS_DLG);
     	 		Intent i = new Intent(this, Preferences.class);
-    	 		startActivity(i);
-    	     	return true;
-    	     	
-    		case R.id.NightMode:
-    			// read old value
+				startActivity(i);
+				return true;
+			} else if (itemId == R.id.NightMode) {
+				// read old value
     			SharedPreferences shpr = PreferenceManager
     					.getDefaultSharedPreferences(getBaseContext());
-    			boolean nightMode = shpr.getBoolean("NightMode", false);
-
-    			// invert & save
+				boolean nightMode = shpr.getBoolean("NightMode", false);
+				// invert & save
     			SharedPreferences.Editor editor = shpr.edit();
-    			editor.putBoolean("NightMode", !nightMode);
-    			editor.commit();
-
-    			// set global variable + apply
+				editor.putBoolean("NightMode", !nightMode);
+				editor.commit();
+				// set global variable + apply
     			readNightMode();
-
-    			return true;
-    	     	
-    	 	case R.id.Quit:
-    	 		ExitFromProgram();
-    	     	return true;
-    		}
+				return true;
+			} else if (itemId == R.id.Quit) {
+				ExitFromProgram();
+				return true;
+			}
     	    return false;
     	}
 
@@ -1504,7 +1529,8 @@ public class AndLess extends Activity implements Comparator<File> {
     		prefs.save();
     		new AlertDialog.Builder(this).setMessage(errMsg).setCancelable(false).setPositiveButton("OK",
     				new DialogInterface.OnClickListener() { 
-    					public void onClick(DialogInterface dialog, int id)	{
+    					@Override
+						public void onClick(DialogInterface dialog, int id)	{
     			    		finish();
     			    		android.os.Process.killProcess(android.os.Process.myPid());
     					}
@@ -1515,7 +1541,8 @@ public class AndLess extends Activity implements Comparator<File> {
     	public void showMsg(String errMsg){
     		new AlertDialog.Builder(this).setMessage(errMsg).setCancelable(false).setPositiveButton("OK",
     				new DialogInterface.OnClickListener() { 
-    						public void onClick(DialogInterface dialog, int id)	{}
+    						@Override
+							public void onClick(DialogInterface dialog, int id)	{}
     				}
     			).show();
     	}
@@ -1593,7 +1620,8 @@ public class AndLess extends Activity implements Comparator<File> {
     		return 666;
     	}
     	
-    	public int compare(File f1, File f2) {
+    	@Override
+		public int compare(File f1, File f2) {
     		int type1 = filetype(f1), type2 = filetype(f2);
     		if(type1 != type2) return type1 - type2;
     		return f1.getName().compareTo(f2.getName());

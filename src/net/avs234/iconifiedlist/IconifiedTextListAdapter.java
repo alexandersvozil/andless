@@ -6,8 +6,6 @@ import net.avs234.R;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,9 +38,11 @@ public class IconifiedTextListAdapter extends BaseAdapter {
         public void setListItems(List<IconifiedText> lit) { mItems = lit; }
 
         /** @return The number of items in the */
-        public int getCount() { return mItems.size(); }
+        @Override
+		public int getCount() { return mItems.size(); }
 
-        public Object getItem(int position) { return mItems.get(position); }
+        @Override
+		public Object getItem(int position) { return mItems.get(position); }
 
         public boolean areAllItemsSelectable() { return false; }
 
@@ -51,7 +51,8 @@ public class IconifiedTextListAdapter extends BaseAdapter {
         }
 
         /** Use the array index as a unique id. */
-        public long getItemId(int position) {
+        @Override
+		public long getItemId(int position) {
                 return position;
         }
 
@@ -62,7 +63,8 @@ public class IconifiedTextListAdapter extends BaseAdapter {
        
         /** @param convertView The old view to overwrite, if one is passed
          * @returns a IconifiedTextView that holds wraps around an IconifiedText */
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @Override
+		public View getView(int position, View convertView, ViewGroup parent) {
         	if(convertView == null) {
 			newView = factory.inflate(R.layout.row, null);
 		} else {
