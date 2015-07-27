@@ -2,6 +2,7 @@ package net.avs234;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -13,7 +14,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -368,7 +371,7 @@ public class AndLessSrv extends Service {
 				
 		private boolean permsOkay = false;
 		
-		private boolean initAudioMode(int mode) {
+		private boolean initAudioMode(int mode) { 
 			if(mode == MODE_DIRECT && !permsOkay) {
 				if(checkSetDevicePermissions()) {
 					log_msg("checkSetDevicePermissions() returned OK");
@@ -391,6 +394,8 @@ public class AndLessSrv extends Service {
 	   		}
            	if(mode == MODE_DIRECT) audioSetVolume(ctx,volume);
 			cur_mode = mode;
+			log_msg("init audiot mode is fine");
+			
            	return true;
 		}
 			
@@ -454,24 +459,9 @@ public class AndLessSrv extends Service {
 							String cf = end > start ? cur_file.substring(start,end) : cur_file.substring(start);
 							informTrack(cf,false);
 						}
-	              		if(files[cur_pos].endsWith(".ape") || files[cur_pos].endsWith(".APE")) {
-	              			if(initAudioMode(driver_mode))	k = apePlay(ctx,files[cur_pos],times[cur_pos]+cur_start);
-	              		} else if(files[cur_pos].endsWith(".flac") || files[cur_pos].endsWith(".FLAC")) {
-	              			if(initAudioMode(driver_mode)) k = flacPlay(ctx,files[cur_pos],times[cur_pos]+cur_start);
-	              		} else if(files[cur_pos].endsWith(".m4a") || files[cur_pos].endsWith(".M4A")) {
-	              			if(initAudioMode(driver_mode)) k = alacPlay(ctx,files[cur_pos],times[cur_pos]+cur_start);
-	              			if(k == LIBLOSSLESS_ERR_FORMAT) {	// maybe it's not apple lossless
-	              				if(initAudioMode(MODE_NONE)) k = extPlay(files[cur_pos],times[cur_pos]+cur_start);
-	              			}
-	              		} else if(files[cur_pos].endsWith(".wav") || files[cur_pos].endsWith(".WAV")) {
-							if(initAudioMode(driver_mode)) k = wavPlay(ctx,files[cur_pos],times[cur_pos]+cur_start);
-						} else if(files[cur_pos].endsWith(".wv") || files[cur_pos].endsWith(".WV")) {
-							if(initAudioMode(driver_mode)) k = wvPlay(ctx,files[cur_pos],times[cur_pos]+cur_start);
-						} else if(files[cur_pos].endsWith(".mpc") || files[cur_pos].endsWith(".MPC")) {
-							if(initAudioMode(driver_mode)) k = mpcPlay(ctx,files[cur_pos],times[cur_pos]+cur_start);
-						} else {
-							if(initAudioMode(MODE_NONE)) k = extPlay(files[cur_pos],times[cur_pos]+cur_start);
-						}
+	              		
+						 extPlay(files[cur_pos],times[cur_pos]+cur_start);
+						
 	              		nm.cancel(NOTIFY_ID);
 					} catch(Exception e) { 
 						log_err("run(): exception in xxxPlay(): " + e.toString());
@@ -890,5 +880,5 @@ public class AndLessSrv extends Service {
                 }
                 return true;
 	}
-
+	
 }

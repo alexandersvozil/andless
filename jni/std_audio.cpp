@@ -132,7 +132,7 @@ static void print_priority(const char *c) {
 static void cbf(int event, void* user, void *info);
 
 int libmediacb_start(msm_ctx *ctx, int channels, int samplerate) {
-
+	 __android_log_print(ANDROID_LOG_INFO,"liblossless","libmedia_ START REEEEACHED REACHEDDDDDD1");
    status_t status;
    int chans; 
 
@@ -259,7 +259,7 @@ void libmediacb_wait_done(msm_ctx *ctx) {
 }
 
 ssize_t libmediacb_write(msm_ctx *ctx, const void *buf, size_t cnt) {
-
+	 __android_log_print(ANDROID_LOG_INFO,"liblossless","WE REACHED WRITE");
     int k;
     int count = (int)cnt;
 

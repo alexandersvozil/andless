@@ -64,6 +64,7 @@ import net.avs234.iconifiedlist.IconifiedTextListAdapter;
 
 public class AndLess extends Activity implements Comparator<File> {
 	
+	AudioJava j = new AudioJava();
     	// Current directory **OR** current cue/playlist file
     	private File cur_path = null;
 
@@ -944,7 +945,7 @@ public class AndLess extends Activity implements Comparator<File> {
         		// if(pBar != null) pBar.setProgress(0);
                 curfile = bb.getString("errormsg");
                 if(curfile == null) return;
-                showMsg(curfile);
+                //showMsg(curfile);
       	  }
       };
     	     

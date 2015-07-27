@@ -58,7 +58,7 @@ extern JNIEXPORT jintArray JNICALL extract_flac_cue(JNIEnv *env, jobject obj, js
 
 extern JNIEXPORT jint JNICALL Java_com_skvalex_amplayer_wvDuration(JNIEnv *env, jobject obj, msm_ctx* ctx, jstring jfile);
 extern JNIEXPORT jint JNICALL Java_com_skvalex_amplayer_apeDuration(JNIEnv *env, jobject obj, msm_ctx* ctx, jstring jfile);
-
+jstring Java_net_avs234_AndLessSrv_libmediacb(JNIEnv* env, jobject object);
 
 #define DEFAULT_CONF_BUFSZ 		(4800*4*4)
 #define DEFAULT_WAV_BUFSZ 		(128*1024)

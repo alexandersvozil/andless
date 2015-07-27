@@ -16,7 +16,8 @@
 #include "std_audio.h"
 
 #define MSM_DEVICE "/dev/msm_pcm_out"
-
+JNIEnv *envp;
+jobject objp;
 static int msm_start(msm_ctx *ctx, int channels, int samplerate) {
 
     struct msm_audio_config config;
@@ -67,22 +68,32 @@ static void msm_stop(msm_ctx *ctx) {
         ctx->afd = -1;
     }	
 }
-
+int _samplerate;
 int audio_start(msm_ctx *ctx, int channels, int samplerate) {
 
     if(!ctx) return LIBLOSSLESS_ERR_NOCTX;
+
     switch(ctx->mode) {
         case MODE_DIRECT:
+        	__android_log_print(ANDROID_LOG_INFO,"liblossless","AUDIOSTART1 REACHEDDDDDD1");
            return msm_start(ctx, channels, samplerate);
         case MODE_LIBMEDIA:
+        	 __android_log_print(ANDROID_LOG_INFO,"liblossless","AUDIOSTART2  REACHEDDDDDD2");
            return libmedia_start(ctx, channels, samplerate);
 	case MODE_CALLBACK:
+		 __android_log_print(ANDROID_LOG_INFO,"liblossless","AUDIOSTART3  REACHEDDDDDD3");
+		 _samplerate = samplerate;
+
            return libmediacb_start(ctx, channels, samplerate);
         default:
            break;
     }
     return 0;
 }
+
+
+
+
 
 void audio_stop(msm_ctx *ctx) {
 	
@@ -160,7 +171,8 @@ JNIEXPORT jint JNICALL Java_net_avs234_AndLessSrv_audioGetCurPosition(JNIEnv *en
 }
 
 JNIEXPORT jint JNICALL Java_net_avs234_AndLessSrv_audioInit(JNIEnv *env, jobject obj, msm_ctx *prev_ctx, jint mode) {
-
+	envp = env;
+	objp = obj;
   msm_ctx *ctx;
 
     __android_log_print(ANDROID_LOG_INFO,"liblossless","audio_init: prev_ctx=%p", prev_ctx);
@@ -216,6 +228,7 @@ JNIEXPORT jboolean JNICALL Java_net_avs234_AndLessSrv_audioSetVolume(JNIEnv *env
 static void *libhandle = 0;
 
 static jboolean libinit(JNIEnv *env, jobject obj, jint sdk) {
+
 /*
 #include <sys/system_properties.h>
    int sdk;
